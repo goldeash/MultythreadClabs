@@ -1,0 +1,37 @@
+# Ignore build output directories
+**/bin/
+**/obj/
+**/publish/
+
+# Ignore Visual Studio-specific folders and files
+**/.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Ignore Rider project folder
+.idea/
+
+# Ignore test results and coverage reports
+TestResults/
+*.coverage
+*.coveragexml
+
+# Ignore log files
+*.log
+
+# Ignore Visual Studio Code settings
+.vscode/
+
+# Ignore ReSharper folders
+_ReSharper*/
+*.[Rr]e[Ss]harper
+
+# Ignore macOS system files
+.DS_Store
+
+# Ignore Windows system files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
