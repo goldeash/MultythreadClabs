@@ -7,9 +7,9 @@ namespace XmlSerializationDemo.Services
         void SerializeToFile(string filePath, IEnumerable<Vehicle> vehicles);
         List<Vehicle> DeserializeFromFile(string filePath);
         void PrintFileContent(string filePath);
-        void PrintAllModelAttributesWithXDocument(string filePath);
-        void PrintAllModelAttributesWithXmlDocument(string filePath);
-        void UpdateAttributeWithXDocument(string filePath, string attributeName, int elementIndex, string newValue);
-        void UpdateAttributeWithXmlDocument(string filePath, string attributeName, int elementIndex, string newValue);
+        void PrintAllModelElementsWithXDocument(string filePath);
+        void PrintAllModelElementsWithXmlDocument(string filePath);
+        void UpdateElementWithXDocument(string filePath, string elementName, int elementIndex, string newValue);
+        void UpdateElementWithXmlDocument(string filePath, string elementName, int elementIndex, string newValue);
     }
 }

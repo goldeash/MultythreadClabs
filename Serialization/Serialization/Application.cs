@@ -5,7 +5,7 @@ namespace XmlSerializationDemo
 {
     public class Application
     {
-        private readonly VehicleCollection _vehicleCollection = new VehicleCollection();
+        private readonly VehicleCollection _vehicleCollection = new();
         private readonly IVehicleXmlSerializer _serializer = new VehicleXmlSerializer();
         private const string DefaultFilePath = "vehicles.xml";
 
@@ -18,16 +18,35 @@ namespace XmlSerializationDemo
 
                 switch (choice)
                 {
-                    case "1": GenerateAndDisplayVehicles(); break;
-                    case "2": SerializeToXml(); break;
-                    case "3": PrintXmlFileContent(); break;
-                    case "4": DeserializeAndDisplay(); break;
-                    case "5": PrintAllModelsWithXDocument(); break;
-                    case "6": PrintAllModelsWithXmlDocument(); break;
-                    case "7": UpdateAttributeWithXDocument(); break;
-                    case "8": UpdateAttributeWithXmlDocument(); break;
-                    case "0": return;
-                    default: Console.WriteLine("Invalid choice. Try again."); break;
+                    case "1":
+                        GenerateAndDisplayVehicles();
+                        break;
+                    case "2":
+                        SerializeToXml();
+                        break;
+                    case "3":
+                        PrintXmlFileContent();
+                        break;
+                    case "4":
+                        DeserializeAndDisplay();
+                        break;
+                    case "5":
+                        PrintAllModelsWithXDocument();
+                        break;
+                    case "6":
+                        PrintAllModelsWithXmlDocument();
+                        break;
+                    case "7":
+                        UpdateElementWithXDocument();
+                        break;
+                    case "8":
+                        UpdateElementWithXmlDocument();
+                        break;
+                    case "0":
+                        return;
+                    default:
+                        Console.WriteLine("Invalid choice. Try again.");
+                        break;
                 }
 
                 Console.WriteLine("\nPress any key to continue...");
@@ -35,7 +54,7 @@ namespace XmlSerializationDemo
             }
         }
 
-        private void DisplayMenu()
+        private static void DisplayMenu()
         {
             Console.Clear();
             Console.WriteLine("XML Serialization Demo");
@@ -56,7 +75,7 @@ namespace XmlSerializationDemo
             _vehicleCollection.Clear();
             var vehicles = VehicleGenerator.GenerateVehicles(10);
             _vehicleCollection.AddRange(vehicles);
-            _vehicleCollection.PrintAll();
+            VehiclePrinter.Print(vehicles);
         }
 
         private void SerializeToXml()
@@ -72,7 +91,10 @@ namespace XmlSerializationDemo
             }
         }
 
-        private void PrintXmlFileContent() => _serializer.PrintFileContent(DefaultFilePath);
+        private void PrintXmlFileContent()
+        {
+            _serializer.PrintFileContent(DefaultFilePath);
+        }
 
         private void DeserializeAndDisplay()
         {
@@ -81,43 +103,35 @@ namespace XmlSerializationDemo
                 var vehicles = _serializer.DeserializeFromFile(DefaultFilePath);
                 _vehicleCollection.Clear();
                 _vehicleCollection.AddRange(vehicles);
-                _vehicleCollection.PrintAll();
-            }
-            catch (Exception ex) when (ex is FileNotFoundException || ex is InvalidOperationException)
-            {
-                Console.WriteLine($"Error: {ex.Message}");
-            }
-        }
-
-        private void PrintAllModelsWithXDocument() => _serializer.PrintAllModelAttributesWithXDocument(DefaultFilePath);
-        private void PrintAllModelsWithXmlDocument() => _serializer.PrintAllModelAttributesWithXmlDocument(DefaultFilePath);
-
-        private void UpdateAttributeWithXDocument()
-        {
-            try
-            {
-                Console.Write("Enter attribute name (Model/Manufacturer/Year/Color): ");
-                var attributeName = Console.ReadLine();
-
-                Console.Write("Enter element index (0-based): ");
-                if (!int.TryParse(Console.ReadLine(), out int index))
-                {
-                    Console.WriteLine("Invalid index.");
-                    return;
-                }
-
-                Console.Write("Enter new value: ");
-                var newValue = Console.ReadLine();
-
-                _serializer.UpdateAttributeWithXDocument(DefaultFilePath, attributeName, index, newValue);
+                VehiclePrinter.Print(vehicles);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                Console.WriteLine($"Error during deserialization: {ex.Message}");
             }
         }
 
-        private void UpdateAttributeWithXmlDocument()
+        private void PrintAllModelsWithXDocument()
+        {
+            _serializer.PrintAllModelElementsWithXDocument(DefaultFilePath);
+        }
+
+        private void PrintAllModelsWithXmlDocument()
+        {
+            _serializer.PrintAllModelElementsWithXmlDocument(DefaultFilePath);
+        }
+
+        private void UpdateElementWithXDocument()
+        {
+            UpdateElement(true);
+        }
+
+        private void UpdateElementWithXmlDocument()
+        {
+            UpdateElement(false);
+        }
+
+        private void UpdateElement(bool useXDocument)
         {
             try
             {
@@ -134,7 +148,14 @@ namespace XmlSerializationDemo
                 Console.Write("Enter new value: ");
                 var newValue = Console.ReadLine();
 
-                _serializer.UpdateAttributeWithXmlDocument(DefaultFilePath, attributeName, index, newValue);
+                if (useXDocument)
+                {
+                    _serializer.UpdateElementWithXDocument(DefaultFilePath, attributeName, index, newValue);
+                }
+                else
+                {
+                    _serializer.UpdateElementWithXmlDocument(DefaultFilePath, attributeName, index, newValue);
+                }
             }
             catch (Exception ex)
             {

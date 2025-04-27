@@ -4,7 +4,7 @@ namespace XmlSerializationDemo.Services
 {
     public static class VehicleGenerator
     {
-        private static readonly Random Random = new Random();
+        private static readonly Random Random = new();
         private static readonly string[] Manufacturers = { "Toyota", "Ford", "Honda", "BMW", "Mercedes", "Audi", "Volkswagen", "Tesla" };
         private static readonly string[] Models = { "Camry", "Focus", "Civic", "X5", "E-Class", "A4", "Golf", "Model S" };
         private static readonly string[] Colors = { "Red", "Blue", "Black", "White", "Silver", "Green", "Yellow" };
