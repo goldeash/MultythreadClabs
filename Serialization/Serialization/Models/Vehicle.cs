@@ -2,6 +2,9 @@
 
 namespace XmlSerializationDemo.Models
 {
+    /// <summary>
+    /// Represents a vehicle with basic properties.
+    /// </summary>
     public class Vehicle
     {
         [XmlAttribute]
