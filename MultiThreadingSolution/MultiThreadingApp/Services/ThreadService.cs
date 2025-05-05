@@ -1,19 +1,45 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
+﻿using System.Diagnostics;
 using MultiThreadingApp.Models;
 
 namespace MultiThreadingApp.Services
 {
+    /// <summary>
+    /// Provides multi-threading operations with file operations.
+    /// </summary>
     public class ThreadService
     {
+        private const string ManufacturersFile = "manufacturers.xml";
+        private const string ShipsFile = "ships.xml";
+        private const string CombinedFile = "combined.txt";
+
         private readonly FileService _fileService = new FileService();
         private readonly SemaphoreSlim _semaphore;
+        private readonly Random _random = new Random();
 
         public ThreadService(int maxConcurrentThreads = 5)
         {
             _semaphore = new SemaphoreSlim(maxConcurrentThreads, maxConcurrentThreads);
+        }
+
+        private List<Manufacturer> GenerateManufacturers(int count)
+        {
+            var manufacturers = new List<Manufacturer>();
+            for (int i = 0; i < count; i++)
+            {
+                manufacturers.Add(Manufacturer.Create($"Manufacturer_{i}", $"Address_{i}"));
+            }
+            return manufacturers;
+        }
+
+        private List<Ship> GenerateShips(int count)
+        {
+            var ships = new List<Ship>();
+            for (int i = 0; i < count; i++)
+            {
+                var shipType = (ShipType)_random.Next(0, 3);
+                ships.Add(Ship.Create(i, $"Model_{i}", $"SN_{i}", shipType));
+            }
+            return ships;
         }
 
         public void ExecuteTask1()
@@ -22,9 +48,10 @@ namespace MultiThreadingApp.Services
             var ships = GenerateShips(10);
 
             var thread1 = new Thread(() =>
-                _fileService.SerializeToFile("manufacturers.xml", manufacturers));
+                _fileService.SerializeToFile(ManufacturersFile, manufacturers));
+
             var thread2 = new Thread(() =>
-                _fileService.SerializeToFile("ships.xml", ships));
+                _fileService.SerializeToFile(ShipsFile, ships));
 
             thread1.Start();
             thread2.Start();
@@ -32,27 +59,27 @@ namespace MultiThreadingApp.Services
             thread1.Join();
             thread2.Join();
 
-            Console.WriteLine("Task 1 completed. Files created: manufacturers.xml and ships.xml");
+            Console.WriteLine($"Task 1 completed. Files created: {ManufacturersFile} and {ShipsFile}");
         }
 
         public void ExecuteTask2()
         {
             var thread1 = new Thread(() =>
             {
-                var manufacturers = _fileService.DeserializeFromFile<Manufacturer>("manufacturers.xml");
+                var manufacturers = _fileService.DeserializeFromFile<Manufacturer>(ManufacturersFile);
                 foreach (var m in manufacturers)
                 {
-                    _fileService.WriteToFile("combined.txt", m.ToString());
-                    Thread.Sleep(100); // добавил для имитации работы
+                    _fileService.WriteToFile(CombinedFile, m.ToString());
+                    Thread.Sleep(100);
                 }
             });
 
             var thread2 = new Thread(() =>
             {
-                var ships = _fileService.DeserializeFromFile<Ship>("ships.xml");
+                var ships = _fileService.DeserializeFromFile<Ship>(ShipsFile);
                 foreach (var s in ships)
                 {
-                    _fileService.WriteToFile("combined.txt", s.ToString());
+                    _fileService.WriteToFile(CombinedFile, s.ToString());
                     Thread.Sleep(100);
                 }
             });
@@ -63,13 +90,13 @@ namespace MultiThreadingApp.Services
             thread1.Join();
             thread2.Join();
 
-            Console.WriteLine("Task 2 completed. Combined file created: combined.txt");
+            Console.WriteLine($"Task 2 completed. Combined file created: {CombinedFile}");
         }
 
         public void ExecuteTask3_1()
         {
             var stopwatch = Stopwatch.StartNew();
-            var content = _fileService.ReadFile("combined.txt");
+            var content = _fileService.ReadFile(CombinedFile);
             Console.WriteLine(content);
             stopwatch.Stop();
             Console.WriteLine($"Time taken: {stopwatch.ElapsedMilliseconds} ms");
@@ -84,13 +111,13 @@ namespace MultiThreadingApp.Services
 
             var thread1 = new Thread(() =>
             {
-                var lines = _fileService.ReadFileLines("combined.txt", 0, 5);
+                var lines = _fileService.ReadFileLines(CombinedFile, 0, 5);
                 firstHalf = string.Join(Environment.NewLine, lines);
             });
 
             var thread2 = new Thread(() =>
             {
-                var lines = _fileService.ReadFileLines("combined.txt", 5, 10);
+                var lines = _fileService.ReadFileLines(CombinedFile, 5, 10);
                 secondHalf = string.Join(Environment.NewLine, lines);
             });
 
@@ -118,7 +145,7 @@ namespace MultiThreadingApp.Services
                     _semaphore.Wait();
                     try
                     {
-                        var content = _fileService.ReadFile("combined.txt");
+                        var content = _fileService.ReadFile(CombinedFile);
                         Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} read file. Content length: {content.Length}");
                     }
                     finally
@@ -137,28 +164,6 @@ namespace MultiThreadingApp.Services
 
             stopwatch.Stop();
             Console.WriteLine($"Time taken: {stopwatch.ElapsedMilliseconds} ms");
-        }
-
-        private List<Manufacturer> GenerateManufacturers(int count)
-        {
-            var manufacturers = new List<Manufacturer>();
-            for (int i = 0; i < count; i++)
-            {
-                manufacturers.Add(Manufacturer.Create($"Manufacturer_{i}", $"Address_{i}"));
-            }
-            return manufacturers;
-        }
-
-        private List<Ship> GenerateShips(int count)
-        {
-            var ships = new List<Ship>();
-            var random = new Random();
-            for (int i = 0; i < count; i++)
-            {
-                var shipType = (ShipType)random.Next(0, 3);
-                ships.Add(Ship.Create(i, $"Model_{i}", $"SN_{i}", shipType));
-            }
-            return ships;
         }
     }
 }

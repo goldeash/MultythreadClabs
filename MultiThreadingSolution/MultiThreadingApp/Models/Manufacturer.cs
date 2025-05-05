@@ -1,20 +1,28 @@
-﻿using System;
-
-namespace MultiThreadingApp.Models
+﻿namespace MultiThreadingApp.Models
 {
+    /// <summary>
+    /// Represents a manufacturer with basic properties.
+    /// </summary>
     public class Manufacturer
     {
         public string Name { get; set; }
         public string Address { get; set; }
 
+        /// <summary>
+        /// Creates a new Manufacturer instance with specified parameters.
+        /// </summary>
         public static Manufacturer Create(string name, string address)
         {
-            return new Manufacturer { Name = name, Address = address };
+            return new Manufacturer
+            {
+                Name = name,
+                Address = address
+            };
         }
 
-        public void PrintObject()
+        public override string ToString()
         {
-            Console.WriteLine($"Manufacturer: Name = {Name}, Address = {Address}");
+            return $"Manufacturer: {Name}, Address: {Address}";
         }
     }
 }
