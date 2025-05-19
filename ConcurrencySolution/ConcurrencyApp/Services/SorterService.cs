@@ -28,7 +28,8 @@ namespace ConcurrencyApp.Services
         {
             if (_isRunning) return;
             _isRunning = true;
-            Task.Run(() => SortContinuously());
+            Task.Run(() =>
+            SortContinuously());
         }
 
         /// <summary>
@@ -47,7 +48,9 @@ namespace ConcurrencyApp.Services
                 {
                     foreach (var kvp in _dictionary)
                     {
-                        var sortedList = kvp.Value.OrderBy(ship => ship.ID).ToList();
+                        var sortedList = kvp.Value.OrderBy(ship => ship.ID)
+                            .ToList();
+
                         _dictionary[kvp.Key] = new ConcurrentBag<Ship>(sortedList);
                     }
                 }

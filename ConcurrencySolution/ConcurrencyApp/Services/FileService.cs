@@ -26,7 +26,9 @@ namespace ConcurrencyApp.Services
             for (int i = 0; i < totalShips / shipsPerFile; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var chunk = ships.Skip(i * shipsPerFile).Take(shipsPerFile).ToList();
+                var chunk = ships.Skip(i * shipsPerFile).Take(shipsPerFile)
+                    .ToList();
+
                 await SaveShipsToFileAsync($"ships_{i + 1}.xml", chunk, progress, i + 1, totalShips / shipsPerFile);
                 progress?.Report((i + 1) * 100 / (totalShips / shipsPerFile));
             }
@@ -63,7 +65,9 @@ namespace ConcurrencyApp.Services
         /// <param name="outputFileName">Name of the output file.</param>
         public async Task SaveCombinedFileAsync(string outputFileName)
         {
-            var allShips = _shipsDictionary.Values.SelectMany(bag => bag).ToList();
+            var allShips = _shipsDictionary.Values.SelectMany(bag => bag)
+                .ToList();
+
             await SaveShipsToFileAsync(outputFileName, allShips);
         }
 
@@ -90,9 +94,21 @@ namespace ConcurrencyApp.Services
         private List<Ship> GenerateShips(int count)
         {
             var random = new Random();
-            return Enumerable.Range(0, count)
-                .Select(i => Ship.Create(i, $"Model_{i}", $"SN_{i}", (ShipType)random.Next(0, 3)))
-                .ToList();
+            var ships = new List<Ship>();
+
+            for (int i = 0; i < count; i++)
+            {
+                var shipType = (ShipType)random.Next(0, 3);
+                var ship = Ship.Create(
+                    i,
+                    $"Model_{i}",
+                    $"SN_{i}",
+                    shipType);
+
+                ships.Add(ship);
+            }
+
+            return ships;
         }
 
         /// <summary>
@@ -101,8 +117,7 @@ namespace ConcurrencyApp.Services
         /// <param name="fileName">Name of the file to save.</param>
         /// <param name="ships">List of ships to save.</param>
         /// <param name="progress">Progress reporter.</param>
-        private async Task SaveShipsToFileAsync(string fileName, List<Ship> ships, IProgress<int> progress = null,
-           int currentFile = 1, int totalFiles = 1)
+        private async Task SaveShipsToFileAsync(string fileName, List<Ship> ships, IProgress<int> progress = null, int currentFile = 1, int totalFiles = 1)
         {
             await _fileLock.WaitAsync();
             try
@@ -124,8 +139,16 @@ namespace ConcurrencyApp.Services
             }
         }
 
-        private async Task ReadFileAndAddToDictionaryAsync(string fileName, IProgress<int> progress = null,
-            int currentFile = 1, int totalFiles = 1)
+        /// <summary>
+        /// read and add to dictionary
+        /// </summary>
+        /// <param name="fileName">Name of the file to save</param>
+        /// <param name="progress">Progres bar</param>
+        /// <param name="currentFile">Curent file</param>
+        /// <param name="totalFiles">total files count</param>
+        /// <returns></returns>
+        /// <exception cref="FileNotFoundException"></exception>
+        private async Task ReadFileAndAddToDictionaryAsync(string fileName, IProgress<int> progress = null, int currentFile = 1, int totalFiles = 1)
         {
             await _fileLock.WaitAsync();
             try
