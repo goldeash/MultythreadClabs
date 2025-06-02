@@ -21,17 +21,20 @@ namespace ConcurrencyApp.Services
         {
             const int totalShips = 50;
             const int shipsPerFile = 10;
+            int totalFiles = totalShips / shipsPerFile;
+
             var ships = GenerateShips(totalShips);
 
-            for (int i = 0; i < totalShips / shipsPerFile; i++)
+            for (int i = 0; i < totalFiles; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var chunk = ships.Skip(i * shipsPerFile)
-                    .Take(shipsPerFile)
+
+                var fileName = $"ships_{i + 1}.xml";
+                var chunk = ships.Skip(i * shipsPerFile).Take(shipsPerFile)
                     .ToList();
 
-                await SaveShipsToFileAsync($"ships_{i + 1}.xml", chunk, progress, i + 1, totalShips / shipsPerFile);
-                progress?.Report((i + 1) * 100 / (totalShips / shipsPerFile));
+                await SaveShipsToFileAsync(fileName, chunk, progress, i + 1, totalFiles);
+                progress?.Report((i + 1) * 100 / totalFiles);
             }
         }
 
@@ -43,10 +46,13 @@ namespace ConcurrencyApp.Services
         public async Task ReadFilesAndPopulateDictionaryAsync(IProgress<int> progress = null, CancellationToken cancellationToken = default)
         {
             const int totalFiles = 5;
+
             for (int i = 1; i <= totalFiles; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                await ReadFileAndAddToDictionaryAsync($"ships_{i}.xml", progress, i, totalFiles);
+
+                var fileName = $"ships_{i}.xml";
+                await ReadFileAndAddToDictionaryAsync(fileName, progress, i, totalFiles);
                 progress?.Report(i * 100 / totalFiles);
             }
         }
@@ -68,7 +74,6 @@ namespace ConcurrencyApp.Services
         {
             var allShips = _shipsDictionary.Values.SelectMany(bag => bag)
                 .ToList();
-
             await SaveShipsToFileAsync(outputFileName, allShips);
         }
 
@@ -118,6 +123,8 @@ namespace ConcurrencyApp.Services
         /// <param name="fileName">Name of the file to save.</param>
         /// <param name="ships">List of ships to save.</param>
         /// <param name="progress">Progress reporter.</param>
+        /// <param name="currentFile">Current file index for progress tracking.</param>
+        /// <param name="totalFiles">Total number of files.</param>
         private async Task SaveShipsToFileAsync(string fileName, List<Ship> ships, IProgress<int> progress = null, int currentFile = 1, int totalFiles = 1)
         {
             await _fileLock.WaitAsync();
@@ -141,14 +148,13 @@ namespace ConcurrencyApp.Services
         }
 
         /// <summary>
-        /// read and add to dictionary
+        /// Reads ships from an XML file and adds them to the dictionary.
         /// </summary>
-        /// <param name="fileName">Name of the file to save</param>
-        /// <param name="progress">Progres bar</param>
-        /// <param name="currentFile">Curent file</param>
-        /// <param name="totalFiles">total files count</param>
-        /// <returns></returns>
-        /// <exception cref="FileNotFoundException"></exception>
+        /// <param name="fileName">Name of the file to read from.</param>
+        /// <param name="progress">Progress reporter for UI updates.</param>
+        /// <param name="currentFile">Current file index for progress tracking.</param>
+        /// <param name="totalFiles">Total number of files.</param>
+        /// <exception cref="FileNotFoundException">Thrown if file does not exist.</exception>
         private async Task ReadFileAndAddToDictionaryAsync(string fileName, IProgress<int> progress = null, int currentFile = 1, int totalFiles = 1)
         {
             await _fileLock.WaitAsync();
@@ -163,7 +169,7 @@ namespace ConcurrencyApp.Services
                 using var reader = new StreamReader(fileName);
                 var ships = (List<Ship>)serializer.Deserialize(reader);
 
-                for (int i = 0; i < ships.Count; i++) // чисто для имитации долгой работы для прогресс бара
+                for (int i = 0; i < ships.Count; i++)
                 {
                     await Task.Delay(50);
                     progress?.Report((currentFile - 1) * 100 / totalFiles + (i + 1) * 100 / (ships.Count * totalFiles));
