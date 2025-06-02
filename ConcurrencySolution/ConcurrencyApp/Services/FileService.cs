@@ -30,7 +30,8 @@ namespace ConcurrencyApp.Services
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var fileName = $"ships_{i + 1}.xml";
-                var chunk = ships.Skip(i * shipsPerFile).Take(shipsPerFile)
+                var chunk = ships.Skip(i * shipsPerFile)
+                    .Take(shipsPerFile)
                     .ToList();
 
                 await SaveShipsToFileAsync(fileName, chunk, progress, i + 1, totalFiles);
