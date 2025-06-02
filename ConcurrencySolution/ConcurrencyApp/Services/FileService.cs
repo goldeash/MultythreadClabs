@@ -26,7 +26,8 @@ namespace ConcurrencyApp.Services
             for (int i = 0; i < totalShips / shipsPerFile; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var chunk = ships.Skip(i * shipsPerFile).Take(shipsPerFile)
+                var chunk = ships.Skip(i * shipsPerFile)
+                    .Take(shipsPerFile)
                     .ToList();
 
                 await SaveShipsToFileAsync($"ships_{i + 1}.xml", chunk, progress, i + 1, totalShips / shipsPerFile);
@@ -162,7 +163,7 @@ namespace ConcurrencyApp.Services
                 using var reader = new StreamReader(fileName);
                 var ships = (List<Ship>)serializer.Deserialize(reader);
 
-                for (int i = 0; i < ships.Count; i++) // чисто для имитации долгой работы
+                for (int i = 0; i < ships.Count; i++) // чисто для имитации долгой работы для прогресс бара
                 {
                     await Task.Delay(50);
                     progress?.Report((currentFile - 1) * 100 / totalFiles + (i + 1) * 100 / (ships.Count * totalFiles));
