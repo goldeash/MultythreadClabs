@@ -7,6 +7,21 @@ namespace ADOApp.Services
 {
     public class DatabaseService : IDatabaseService
     {
+        private const string ManufacturerPrefix = "Manufacturer";
+        private const string AddressPrefix = "Address";
+        private const string ModelPrefix = "Model";
+        private const string SerialPrefix = "SN";
+        private const int DefaultNumberOfEntries = 30;
+        private const int ShipTypeVariants = 5;
+
+        private const string NameParam = "@Name";
+        private const string AddressParam = "@Address";
+
+        private const string ModelParam = "@Model";
+        private const string SerialNumberParam = "@SerialNumber";
+        private const string ShipTypeParam = "@ShipType";
+        private const string ManufacturerIdParam = "@ManufacturerId";
+
         private readonly string _connectionString;
 
         public DatabaseService()
@@ -50,11 +65,11 @@ namespace ADOApp.Services
 
             var command = new SqlCommand(
                 $@"INSERT INTO {DatabaseConstants.MANUFACTURERS_TABLE_NAME} (Name, Address) 
-                VALUES (@Name, @Address);
+                VALUES ({NameParam}, {AddressParam});
                 SELECT SCOPE_IDENTITY();", connection);
 
-            command.Parameters.AddWithValue("@Name", manufacturer.Name);
-            command.Parameters.AddWithValue("@Address", manufacturer.Address);
+            command.Parameters.AddWithValue(NameParam, manufacturer.Name);
+            command.Parameters.AddWithValue(AddressParam, manufacturer.Address);
 
             var result = await command.ExecuteScalarAsync();
             return Convert.ToInt32(result);
@@ -68,12 +83,12 @@ namespace ADOApp.Services
             var command = new SqlCommand(
                 $@"INSERT INTO {DatabaseConstants.SHIPS_TABLE_NAME} 
                 (Model, SerialNumber, ShipType, ManufacturerId) 
-                VALUES (@Model, @SerialNumber, @ShipType, @ManufacturerId)", connection);
+                VALUES ({ModelParam}, {SerialNumberParam}, {ShipTypeParam}, {ManufacturerIdParam})", connection);
 
-            command.Parameters.AddWithValue("@Model", ship.Model);
-            command.Parameters.AddWithValue("@SerialNumber", ship.SerialNumber);
-            command.Parameters.AddWithValue("@ShipType", (int)ship.ShipType);
-            command.Parameters.AddWithValue("@ManufacturerId", ship.ManufacturerId);
+            command.Parameters.AddWithValue(ModelParam, ship.Model);
+            command.Parameters.AddWithValue(SerialNumberParam, ship.SerialNumber);
+            command.Parameters.AddWithValue(ShipTypeParam, (int)ship.ShipType);
+            command.Parameters.AddWithValue(ManufacturerIdParam, ship.ManufacturerId);
 
             await command.ExecuteNonQueryAsync();
         }
@@ -87,9 +102,9 @@ namespace ADOApp.Services
 
             var command = new SqlCommand(
                 $@"SELECT * FROM {DatabaseConstants.SHIPS_TABLE_NAME} 
-                WHERE ManufacturerId = @ManufacturerId", connection);
+                WHERE ManufacturerId = {ManufacturerIdParam}", connection);
 
-            command.Parameters.AddWithValue("@ManufacturerId", manufacturerId);
+            command.Parameters.AddWithValue(ManufacturerIdParam, manufacturerId);
 
             using var reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
@@ -135,18 +150,20 @@ namespace ADOApp.Services
         {
             var random = new Random();
 
-            for (int i = 0; i < 30; i++)
+            for (int i = 0; i < DefaultNumberOfEntries; i++)
             {
+                var currentNumber = i + 1;
+
                 var manufacturer = Manufacturer.Create(
-                    $"Manufacturer_{i + 1}",
-                    $"Address_{i + 1}");
+                    $"{ManufacturerPrefix}_{currentNumber}",
+                    $"{AddressPrefix}_{currentNumber}");
 
                 var manufacturerId = await AddManufacturerAsync(manufacturer);
 
                 var ship = Ship.Create(
-                    $"Model_{i + 1}",
-                    $"SN_{i + 1}",
-                    (ShipType)random.Next(0, 5),
+                    $"{ModelPrefix}_{currentNumber}",
+                    $"{SerialPrefix}_{currentNumber}",
+                    (ShipType)random.Next(0, ShipTypeVariants),
                     manufacturerId);
 
                 await AddShipAsync(ship);
