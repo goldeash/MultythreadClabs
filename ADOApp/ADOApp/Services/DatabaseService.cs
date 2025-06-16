@@ -5,10 +5,7 @@ using Microsoft.Data.SqlClient;
 
 namespace ADOApp.Services
 {
-    /// <summary>
-    /// Service for database operations using ADO.NET
-    /// </summary>
-    public class DatabaseService
+    public class DatabaseService : IDatabaseService
     {
         private readonly string _connectionString;
 
@@ -17,10 +14,6 @@ namespace ADOApp.Services
             _connectionString = DatabaseConstants.CONNECTION_STRING;
         }
 
-        /// <summary>
-        /// Creates database tables if they don't exist
-        /// </summary>
-        /// <returns>Task</returns>
         public async Task InitializeDatabaseAsync()
         {
             using var connection = new SqlConnection(_connectionString);
@@ -50,11 +43,6 @@ namespace ADOApp.Services
             await createShipsTableCommand.ExecuteNonQueryAsync();
         }
 
-        /// <summary>
-        /// Adds a manufacturer to the database
-        /// </summary>
-        /// <param name="manufacturer">manufacturer</param>
-        /// <returns>Task<int></returns>
         public async Task<int> AddManufacturerAsync(Manufacturer manufacturer)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -72,11 +60,6 @@ namespace ADOApp.Services
             return Convert.ToInt32(result);
         }
 
-        /// <summary>
-        /// Adds a ship to the database
-        /// </summary>
-        /// <param name="ship">ship</param>
-        /// <returns>Task</returns>
         public async Task AddShipAsync(Ship ship)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -95,11 +78,6 @@ namespace ADOApp.Services
             await command.ExecuteNonQueryAsync();
         }
 
-        /// <summary>
-        /// Gets all ships for a specific manufacturer
-        /// </summary>
-        /// <param name="manufacturerId">manufacturerId</param>
-        /// <returns>Task<List<Ship>></returns>
         public async Task<List<Ship>> GetShipsByManufacturerAsync(int manufacturerId)
         {
             var ships = new List<Ship>();
@@ -129,10 +107,6 @@ namespace ADOApp.Services
             return ships;
         }
 
-        /// <summary>
-        /// Gets all manufacturers from the database
-        /// </summary>
-        /// <returns>Task<List<Manufacturer>></returns>
         public async Task<List<Manufacturer>> GetAllManufacturersAsync()
         {
             var manufacturers = new List<Manufacturer>();
@@ -157,10 +131,6 @@ namespace ADOApp.Services
             return manufacturers;
         }
 
-        /// <summary>
-        /// Populates database with sample data (30 manufacturers and 30 ships)
-        /// </summary>
-        /// <returns>Task</returns>
         public async Task PopulateDatabaseAsync()
         {
             var random = new Random();

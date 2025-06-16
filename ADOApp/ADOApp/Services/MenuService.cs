@@ -8,9 +8,9 @@ namespace ADOApp
     /// </summary>
     public class MenuService
     {
-        private readonly DatabaseService _databaseService;
+        private readonly IDatabaseService _databaseService;
 
-        public MenuService(DatabaseService databaseService)
+        public MenuService(IDatabaseService databaseService)
         {
             _databaseService = databaseService;
         }
@@ -177,8 +177,7 @@ namespace ADOApp
             }
 
             Console.Write("Manufacturer ID: ");
-            if (!int.TryParse(
-                Console.ReadLine(), out int manufacturerId) ||
+            if (!int.TryParse(Console.ReadLine(), out int manufacturerId) ||
                 !manufacturers.Any(m => m.Id == manufacturerId))
             {
                 Console.WriteLine("Invalid Manufacturer ID. Press any key to continue...");
