@@ -4,6 +4,9 @@ using System.Collections.Concurrent;
 
 namespace ADOApp.Tests
 {
+    /// <summary>
+    /// Test implementation of IDatabaseService for testing purposes
+    /// </summary>
     public class TestDatabaseService : IDatabaseService
     {
         private const string ManufacturerPrefix = "Manufacturer";
