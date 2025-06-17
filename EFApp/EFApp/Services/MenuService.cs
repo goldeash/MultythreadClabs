@@ -1,9 +1,6 @@
 ﻿using EFApp.Data;
 using EFApp.Models;
 using EFApp.Services;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace EFApp
 {
@@ -178,7 +175,8 @@ namespace EFApp
             Console.Write("Address: ");
             var address = Console.ReadLine();
 
-            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(address))
+            if (string.IsNullOrWhiteSpace(name)
+                || string.IsNullOrWhiteSpace(address))
             {
                 Console.WriteLine("Name and Address cannot be empty. Press any key to continue...");
                 Console.ReadKey();
@@ -307,7 +305,8 @@ namespace EFApp
             Console.WriteLine("Delete Manufacturer");
 
             Console.Write("Enter Manufacturer ID to delete: ");
-            if (!int.TryParse(Console.ReadLine(), out int id))
+            if (!int.TryParse
+                (Console.ReadLine(), out int id))
             {
                 Console.WriteLine("Invalid ID. Press any key to continue...");
                 Console.ReadKey();
@@ -344,7 +343,8 @@ namespace EFApp
             }
 
             Console.Write("Manufacturer ID: ");
-            if (!int.TryParse(Console.ReadLine(), out int manufacturerId) ||
+            if (!int.TryParse
+                (Console.ReadLine(), out int manufacturerId) ||
                 !manufacturers.Any(m => m.Id == manufacturerId))
             {
                 Console.WriteLine("Invalid Manufacturer ID. Press any key to continue...");
@@ -365,7 +365,8 @@ namespace EFApp
             }
 
             Console.Write("Ship Type (number): ");
-            if (!int.TryParse(Console.ReadLine(), out int shipType) ||
+            if (!int.TryParse
+                (Console.ReadLine(), out int shipType) ||
                 !Enum.IsDefined(typeof(ShipType), shipType))
             {
                 Console.WriteLine("Invalid Ship Type. Press any key to continue...");
@@ -373,7 +374,8 @@ namespace EFApp
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(model) || string.IsNullOrWhiteSpace(serialNumber))
+            if (string.IsNullOrWhiteSpace(model)
+                || string.IsNullOrWhiteSpace(serialNumber))
             {
                 Console.WriteLine("Model and Serial Number cannot be empty. Press any key to continue...");
                 Console.ReadKey();
@@ -561,7 +563,8 @@ namespace EFApp
             }
 
             Console.Write("Ship Type (number): ");
-            if (!int.TryParse(Console.ReadLine(), out int shipType) ||
+            if (!int.TryParse
+                (Console.ReadLine(), out int shipType) ||
                 !Enum.IsDefined(typeof(ShipType), shipType))
             {
                 Console.WriteLine("Invalid Ship Type. Press any key to continue...");

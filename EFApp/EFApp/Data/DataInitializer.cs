@@ -1,8 +1,5 @@
 ﻿using EFApp.Constants;
 using EFApp.Models;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Threading.Tasks;
 
 namespace EFApp.Data
 {
