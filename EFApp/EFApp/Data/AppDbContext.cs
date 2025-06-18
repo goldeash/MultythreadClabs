@@ -32,17 +32,26 @@ namespace EFApp.Data
             {
                 entity.ToTable(DatabaseConstants.MANUFACTURERS_TABLE_NAME);
                 entity.HasKey(m => m.Id);
-                entity.Property(m => m.Name).IsRequired().HasMaxLength(100);
-                entity.Property(m => m.Address).IsRequired().HasMaxLength(200);
+                entity.Property(m => m.Name)
+                .IsRequired()
+                .HasMaxLength(100);
+                entity.Property(m => m.Address)
+                .IsRequired()
+                .HasMaxLength(200);
             });
 
             modelBuilder.Entity<Ship>(entity =>
             {
                 entity.ToTable(DatabaseConstants.SHIPS_TABLE_NAME);
                 entity.HasKey(s => s.Id);
-                entity.Property(s => s.Model).IsRequired().HasMaxLength(100);
-                entity.Property(s => s.SerialNumber).IsRequired().HasMaxLength(100);
-                entity.Property(s => s.ShipType).IsRequired();
+                entity.Property(s => s.Model)
+                .IsRequired()
+                .HasMaxLength(100);
+                entity.Property(s => s.SerialNumber)
+                .IsRequired()
+                .HasMaxLength(100);
+                entity.Property(s => s.ShipType)
+                .IsRequired();
                 entity.HasOne<Manufacturer>()
                     .WithMany()
                     .HasForeignKey(s => s.ManufacturerId);
