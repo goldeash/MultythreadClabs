@@ -1,13 +1,8 @@
 using EFApp.Data.Contexts;
 using EFApp.Models;
 using EFApp.Services;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 using Moq.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace EFApp.Tests
 {
@@ -27,10 +22,8 @@ namespace EFApp.Tests
         /// </summary>
         public RepositoryTests()
         {
-            // 1. Arrange - Setup common objects
             _mockContext = new Mock<TphDbContext>();
 
-            // Prepare test data
             _manufacturers = new List<Manufacturer>
             {
                 Manufacturer.Create("Test Manufacturer 1", "Address 1"),
@@ -45,14 +38,11 @@ namespace EFApp.Tests
                 new Aircarrier { Id = 2, Model = "AC-01", SerialNumber = "SN002", ManufacturerId = 2, AircraftCapacity = 75 }
             };
 
-            // Link ships to manufacturers for Include() to work
             _ships.ForEach(s => s.Manufacturer = _manufacturers.First(m => m.Id == s.ManufacturerId));
 
-            // Setup mock DbSets to return the test data using the virtual Set<T>() method
             _mockContext.Setup(c => c.Set<Manufacturer>()).ReturnsDbSet(_manufacturers);
             _mockContext.Setup(c => c.Set<Ship>()).ReturnsDbSet(_ships);
 
-            // Create an instance of the class we are testing
             _repository = new Repository(_mockContext.Object);
         }
 
@@ -63,10 +53,13 @@ namespace EFApp.Tests
         [Fact]
         public async Task GetAllManufacturersAsync_ShouldReturnAllManufacturers()
         {
-            // 2. Act - Call the method being tested
+            // Arrange
+            // Common arrangement is done in the constructor.
+
+            // Act
             var result = await _repository.GetAllManufacturersAsync();
 
-            // 3. Assert - Verify the result
+            // Assert
             Assert.NotNull(result);
             Assert.Equal(2, result.Count);
             Assert.Equal("Test Manufacturer 1", result[0].Name);
@@ -81,7 +74,6 @@ namespace EFApp.Tests
         {
             // Arrange
             var expectedId = 1;
-            // The FindAsync method needs to be mocked specifically on the DbSet
             _mockContext.Setup(c => c.Set<Manufacturer>().FindAsync(expectedId))
                 .ReturnsAsync(_manufacturers.First(m => m.Id == expectedId));
 
@@ -107,9 +99,7 @@ namespace EFApp.Tests
             await _repository.AddManufacturerAsync(newManufacturer);
 
             // Assert
-            // Verify that the Add method was called on the DbSet exactly once.
             _mockContext.Verify(c => c.Set<Manufacturer>().Add(newManufacturer), Times.Once);
-            // Verify that SaveChangesAsync was called exactly once.
             _mockContext.Verify(c => c.SaveChangesAsync(It.IsAny<System.Threading.CancellationToken>()), Times.Once);
         }
 
@@ -120,13 +110,15 @@ namespace EFApp.Tests
         [Fact]
         public async Task GetAllShipsAsync_ShouldReturnAllShips()
         {
+            // Arrange
+            // Common arrangement is done in the constructor.
+
             // Act
             var result = await _repository.GetAllShipsAsync();
 
             // Assert
             Assert.NotNull(result);
             Assert.Equal(2, result.Count);
-            // Check if it's the correct derived type
             Assert.IsType<Battleship>(result[0]);
             Assert.IsType<Aircarrier>(result[1]);
         }
