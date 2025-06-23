@@ -45,14 +45,12 @@ namespace EFApp.Tests
                 new Aircarrier { Id = 2, Model = "AC-01", SerialNumber = "SN002", ManufacturerId = 2, AircraftCapacity = 75 }
             };
 
-            // Setup mock DbSets to return the test data
-            _mockContext.Setup(c => c.Set<Manufacturer>()).ReturnsDbSet(_manufacturers);
-            _mockContext.Setup(c => c.Set<Ship>()).ReturnsDbSet(_ships);
-
             // Link ships to manufacturers for Include() to work
             _ships.ForEach(s => s.Manufacturer = _manufacturers.First(m => m.Id == s.ManufacturerId));
-            _mockContext.Setup(m => m.Ships).ReturnsDbSet(_ships);
 
+            // Setup mock DbSets to return the test data using the virtual Set<T>() method
+            _mockContext.Setup(c => c.Set<Manufacturer>()).ReturnsDbSet(_manufacturers);
+            _mockContext.Setup(c => c.Set<Ship>()).ReturnsDbSet(_ships);
 
             // Create an instance of the class we are testing
             _repository = new Repository(_mockContext.Object);
@@ -83,7 +81,7 @@ namespace EFApp.Tests
         {
             // Arrange
             var expectedId = 1;
-            // The FindAsync method needs to be mocked specifically
+            // The FindAsync method needs to be mocked specifically on the DbSet
             _mockContext.Setup(c => c.Set<Manufacturer>().FindAsync(expectedId))
                 .ReturnsAsync(_manufacturers.First(m => m.Id == expectedId));
 
